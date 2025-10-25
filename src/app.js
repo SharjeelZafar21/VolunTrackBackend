@@ -5,7 +5,7 @@ require('dotenv').config();
 
 // Routes
 const authRoutes = require('./routes/auth');
-const oppRoutes = require('./routes/opportunities');
+//const oppRoutes = require('./routes/opportunities');
 
 const app = express();
 app.use(cors());
@@ -15,7 +15,7 @@ app.use(express.json());
 connectDB();
 
 app.use('/api/auth', authRoutes);
-app.use('/api/opportunities', oppRoutes);
+//app.use('/api/opportunities', oppRoutes);
 
 app.get('/', (req, res) => {
   res.send('VolunTrack Backend Running');
