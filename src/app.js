@@ -5,6 +5,8 @@ require('dotenv').config();
 
 // Routes
 const authRoutes = require('./routes/auth');
+const { default: router } = require('./routes/events');
+// const eventRoutes = require('./routes/events');
 //const oppRoutes = require('./routes/opportunities');
 
 const app = express();
@@ -15,6 +17,7 @@ app.use(express.json());
 connectDB();
 
 app.use('/api/auth', authRoutes);
+app.use('/api/events', router);
 //app.use('/api/opportunities', oppRoutes);
 
 app.get('/', (req, res) => {
