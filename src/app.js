@@ -1,11 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const connectDB = require('./config/db');
-require('dotenv').config();
+import express from "express";
+import cors from "cors";
+import connectDB from "./config/db.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Routes
-const authRoutes = require('./routes/auth');
-const { default: router } = require('./routes/events');
+import authRoutes from "./routes/auth.js"
+import router from "./routes/events.js";
 // const eventRoutes = require('./routes/events');
 //const oppRoutes = require('./routes/opportunities');
 
@@ -24,4 +25,4 @@ app.get('/', (req, res) => {
   res.send('VolunTrack Backend Running');
 });
 
-module.exports = app;
+export default app;
