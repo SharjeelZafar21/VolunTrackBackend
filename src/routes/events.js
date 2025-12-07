@@ -175,5 +175,69 @@ router.post("/requests/:requestId/reject", authMiddleware, async(req, res) =>{
         console.error(err);
         res.status(500).json({message: "Error rejecting request"});
     }
+});
+
+//Organizer complete event
+router.post("/event/complete", authMiddleware, async (req, res) => {
+  try {
+    const { eventId, userId, impactScore } = req.body;
+
+    if (req.user.role !== "organizer")
+      return res.status(403).json({ message: "Access denied" });
+
+    const event = await Event.findById(eventId);
+
+    if (!event) return res.status(404).json({ message: "Event not found" });
+
+    // Remove from joinedVolunteers
+    event.joinedVolunteers = event.joinedVolunteers.filter(
+      (id) => id.toString() !== userId
+    );
+    await event.save();
+
+    // Add completedEvent to user
+    const user = await User.findById(userId);
+    user.completedEvents.push({
+      eventId,
+      impactScore: Number(impactScore),
+    });
+    await user.save();
+
+    res.status(201).json({ message: "Event completed for this volunteer" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+//Fetch voluteer profile
+router.get("/volunteer/profile/:userId", authMiddleware, async (req, res)=>{
+    try{
+        const volunteer = await User.findById(req.params.userId)
+        .populate("completedEvents.eventId", "title date location");
+
+        console.log("volunteer in backend",volunteer);
+        
+        
+        if(!volunteer) return res.status(404).json({message: "User not found"});
+
+        //calculate average impact score
+        const avgImpact = volunteer.completedEvents.length
+            ? volunteer.completedEvents.reduce((acc, e) => acc + e.impactScore, 0) 
+              / volunteer.completedEvents.length
+            : 0;
+        
+        res.json({
+            id: volunteer._id,
+            name: volunteer.name,
+            email: volunteer.email,
+            skills: volunteer.skills,
+            completedEvents: volunteer.completedEvents,
+            averageImpactScore: avgImpact
+        });
+    }catch(err){
+        console.error(err);
+        res.status(500).json({message: "server error"});
+    }
 })
 export default router;

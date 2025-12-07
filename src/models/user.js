@@ -11,7 +11,11 @@ const UserSchema = new mongoose.Schema({
       required: true
     },
     skills: [String],
-    interest: [String]
+    interest: [String],
+    completedEvents:[{
+      eventId: {type: mongoose.Schema.Types.ObjectId, ref: "Event"},
+      impactScore: {type: Number, default: 0}
+    }]
 }, {timestamps: true});
 
 UserSchema.methods.verifyPassword = function(password) {
