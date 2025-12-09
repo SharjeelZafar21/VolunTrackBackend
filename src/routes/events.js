@@ -210,7 +210,7 @@ router.post("/event/complete", authMiddleware, async (req, res) => {
   }
 });
 
-//Fetch voluteer profile
+//Fetch voluteer profile for organizer
 router.get("/volunteer/profile/:userId", authMiddleware, async (req, res)=>{
     try{
         const volunteer = await User.findById(req.params.userId)
@@ -240,4 +240,32 @@ router.get("/volunteer/profile/:userId", authMiddleware, async (req, res)=>{
         res.status(500).json({message: "server error"});
     }
 })
+
+// Volunteer my-profile
+router.get("/volunteer/me", authMiddleware, async (req, res) => {
+  try {
+    const volunteer = await User.findById(req.user.id)
+      .populate("completedEvents.eventId", "title date location");
+
+    if (!volunteer) return res.status(404).json({ message: "User not found" });
+
+    const avgImpact = volunteer.completedEvents.length
+      ? volunteer.completedEvents.reduce((acc, e) => acc + e.impactScore, 0) /
+        volunteer.completedEvents.length
+      : 0;
+
+    res.json({
+      name: volunteer.name,
+      email: volunteer.email,
+      skills: volunteer.skills,
+      interest: volunteer.interest,
+      completedEvents: volunteer.completedEvents,
+      averageImpactScore: avgImpact
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "server error" });
+  }
+});
+
 export default router;
